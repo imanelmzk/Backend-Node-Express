@@ -3,7 +3,6 @@
 ---
 ## ✨ Auteur
 **Nom :** Imane Lmzk  
-**Email :** imane.lmzk@gmail.com 
 **Projet Fullstack** : backend TypeScript + Express + Prisma + PostgreSQL .....
 ---
 LICENSE
