@@ -1,4 +1,5 @@
 import express = require("express");
+import useRoutes from "./routes/user.routes";
 /*import type { Request, Response } from "express";
 
 const app = express();
@@ -13,4 +14,6 @@ app.listen(PORT,()=>{
 })*/
 const app = express();
 app.use(express.json());
+app.use("/users", useRoutes);
+
 export default app;
