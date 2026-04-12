@@ -1,9 +1,37 @@
+import { createUserSchema } from '../validators/user.schema';
 //import { getUserById } from './user.controller';
 // import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import /*getUserById + createUser + updateUser + deleteUser*/ * as userService from "../services/user.service";
 
-// * Récupérer tous les utilisateurs + * GET *
+
+// * Créer un nouvel utilsateur avec validation ZOD
+export const createUserSchemaTeste = async(req: Request, res: Response) =>{
+  try{
+      //* 1. On valide les données reçues (req.body) avec ZOD 
+      //* Si les données sont fausses, 
+      //* Zod lance une erreur qui va directement dans le catch
+      const validatedData = createUserSchema.parse(req.body); // ✅ corrige "createUserSchema.({name, email})" → "createUserSchema.parse(req.body)"
+
+      //* 2. Si les données sont valides, on peut les utiliser pour créer l'utilisateur
+      const {name, email} = validatedData; // ✅ corrige "const {name, email} = req.body;" → "const {name, email} = validation;"
+
+      const newUser = await userService.createUser(name, email);
+      res.status(201).json(newUser);
+  }catch(error : any){
+    //* 3. Si ZOD détecte une erreur, on renvoi un message précis
+    if(error.name == "ZODErreur"){
+      return res.status(400).json({
+        error: "Données invalides",
+        details: error.errors // Donne les détails.
+      });
+    }
+      res.status(500).json({error : "Serveur échoué"})
+  }
+}
+
+
+// * Récupérer tous les utilisateurs par ID+ * GET *
 export const getUserById = async(req: Request, res: Response) => {
   try{
     const user = await userService.getUserById(Number(req.params.id));
@@ -16,11 +44,13 @@ export const getUserById = async(req: Request, res: Response) => {
 // *  Créer un nouvel utilisateur + * POST *
 export const createUser = async(req: Request, res:Response) =>{
   try{
-    const {name, email} = req.body;
+    const validatedData = createUserSchema.parse(req.body);
+    const {name, email} = validatedData;
     const newUser = await userService.createUser(name, email);
     res.status(201).json(newUser);
   }catch(error){
-    res.status(500).json({error : "Erreur lors de la création de l'utilisateur"})
+    console.error("détail du l'erreur:",error);
+    res.status(500).json({error : "Erreur Interne"})
   };
 };
 
